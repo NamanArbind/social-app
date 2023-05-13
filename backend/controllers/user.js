@@ -106,7 +106,7 @@ exports.followUser = async (req, res) => {
       userToFollow.followers.splice(indexFollowers, 1);
       await loggedUser.save();
       await userToFollow.save();
-      res.status(400).json({
+      res.status(200).json({
         success: true,
         message: "User unfollowed",
       });
@@ -115,7 +115,7 @@ exports.followUser = async (req, res) => {
       userToFollow.followers.push(loggedUser._id);
       await loggedUser.save();
       await userToFollow.save();
-      res.status(400).json({
+      res.status(200).json({
         success: true,
         message: "User followed",
       });

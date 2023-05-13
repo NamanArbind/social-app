@@ -5,7 +5,7 @@ exports.createPosts = async (req, res) => {
   try {
     const newPostData = {
       caption: req.body.caption,
-      avatar: { public_id: "Sample id", url: "Sample url" },
+      image: { public_id: "Sample id", url: "Sample url" },
       owner: req.user._id,
     };
     let newpost = await Post.create(newPostData);
@@ -96,10 +96,10 @@ exports.getPostsOfFollowing = async (req, res) => {
       owner: {
         $in: user.following,
       },
-    });
+    }).populate("owner likes comments.user");
     res.status(200).json({
       success: true,
-      posts,
+      posts:posts.reverse(),
     });
   } catch (error) {
     res.status(500).json({
