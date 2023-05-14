@@ -25,9 +25,9 @@ const NewPost = () => {
     }
 
   }
-  const submitHandler=(e)=>{
+  const submitHandler=async (e)=>{
        e.preventDefault();
-       dispatch(createNewPost(caption,image))
+       await dispatch(createNewPost(caption,image))
        dispatch(loadUser())
        
   }

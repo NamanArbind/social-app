@@ -93,7 +93,7 @@ export const createNewPost = (caption, image) => async (dispatch) => {
     });
   }
 };
-export const updatePost = (caption,postId) => async (dispatch) => {
+export const updatePost = (caption, postId) => async (dispatch) => {
   try {
     dispatch({
       type: "updateCaptionRequest",
@@ -135,6 +135,36 @@ export const deletePost = (id) => async (dispatch) => {
   } catch (error) {
     dispatch({
       type: "deletePostFailure",
+      payload: error.response.data.message,
+    });
+  }
+};
+export const updateProfile = (name, email, avatar) => async (dispatch) => {
+  try {
+    dispatch({
+      type: "updateProfileRequest",
+    });
+
+    const { data } = await axios.put(
+      `/api/update/profile`,
+      {
+        name,
+        email,
+        avatar,
+      },
+      {
+        headers: {
+          "Content-Type": "application/json",
+        },
+      }
+    );
+    dispatch({
+      type: "updateProfileSuccess",
+      payload: data.message,
+    });
+  } catch (error) {
+    dispatch({
+      type: "updateProfileFailure",
       payload: error.response.data.message,
     });
   }

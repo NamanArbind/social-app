@@ -27,6 +27,34 @@ export const loginUser = (email, password) => async (dispatch) => {
     });
   }
 };
+export const registerUser =
+  (name, email, password, avatar) => async (dispatch) => {
+    //Higher order function
+
+    try {
+      dispatch({
+        type: "RegisterRequest",
+      });
+      const { data } = await axios.post(
+        "/api/register",
+        { email, password, name, avatar },
+        {
+          headers: {
+            "Content-Type": "application/json",
+          },
+        }
+      );
+      dispatch({
+        type: "RegisterSuccess",
+        payload: data.user,
+      });
+    } catch (error) {
+      dispatch({
+        type: "RegisterFailure",
+        payload: error.response.data.message,
+      });
+    }
+  };
 export const loadUser = () => async (dispatch) => {
   //Higher order function
 
@@ -106,12 +134,11 @@ export const getMyPosts = () => async (dispatch) => {
 };
 
 export const logoutUser = () => async (dispatch) => {
-
   try {
     dispatch({
       type: "LogoutUserRequest",
     });
-   await axios.get("/api/logout");
+    await axios.get("/api/logout");
     dispatch({
       type: "LogoutUserSuccess",
     });

@@ -2,21 +2,26 @@ const Post = require("../models/Post");
 const User = require("../models/User");
 const { sendEmail } = require("../middlewares/sendEmail");
 const crypto = require("crypto");
+const cloudinary = require("cloudinary");
 
 exports.registerUser = async (req, res) => {
   try {
-    const { name, email, password } = req.body;
+    const { name, email, password, avatar } = req.body;
+
     let user = await User.findOne({ email });
     if (user) {
       return res
         .status(400)
         .send({ success: false, message: "User already exists" });
     }
+    const myCloud = await cloudinary.v2.uploader.upload(avatar, {
+      folder: "users",
+    });
     user = await User.create({
       name,
       email,
       password,
-      avatar: { public_id: "Sample id", url: "Sample url" },
+      avatar: { public_id: myCloud.public_id, url: myCloud.secure_url },
     });
     const token = await user.generatetoken();
     const options = {
@@ -40,8 +45,8 @@ exports.loginUser = async (req, res) => {
   try {
     const { email, password } = req.body;
     const user = await User.findOne({ email })
-    .select("+password")
-    .populate("posts followers following");
+      .select("+password")
+      .populate("posts followers following");
     if (!user) {
       return res.status(400).send({
         success: false,
@@ -176,7 +181,14 @@ exports.updateProfile = async (req, res) => {
     if (email) {
       user.email = email;
     }
-    //TODO:User avatar
+    if(avatar) {
+      await cloudinary.v2.uploader.destroy(user.avatar.public_id)
+      const mycloud=await cloudinary.v2.uploader.upload(avatar,{
+        folder:"users"
+      })
+      user.avatar.public_id=mycloud.public_id;
+      user.avatar.url=mycloud.secure_url
+    }
     await user.save();
 
     res.status(200).json({
@@ -197,6 +209,7 @@ exports.deleteProfile = async (req, res) => {
     const followers = user.followers;
     const following = user.following;
     const userID = req.user._id;
+    await cloudinary.v2.uploader.destroy(user.avatar.public_id)
     await User.deleteOne(user);
     res.cookie("token", null, {
       expires: new Date(Date.now()),
@@ -235,7 +248,9 @@ exports.deleteProfile = async (req, res) => {
 
 exports.myProfile = async (req, res) => {
   try {
-    const user = await User.findById(req.user._id).populate("posts followers following");
+    const user = await User.findById(req.user._id).populate(
+      "posts followers following"
+    );
 
     res.status(200).send({
       success: true,
@@ -292,7 +307,9 @@ exports.getMyPosts = async (req, res) => {
     const posts = [];
 
     for (let i = 0; i < user.posts.length; i++) {
-      const post = await Post.findById(user.posts[i]).populate("likes comments.user owner");
+      const post = await Post.findById(user.posts[i]).populate(
+        "likes comments.user owner"
+      );
       // if(post!=undefined)
       posts.push(post);
     }
