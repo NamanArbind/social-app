@@ -93,3 +93,49 @@ export const createNewPost = (caption, image) => async (dispatch) => {
     });
   }
 };
+export const updatePost = (caption,postId) => async (dispatch) => {
+  try {
+    dispatch({
+      type: "updateCaptionRequest",
+    });
+
+    const { data } = await axios.put(
+      `/api/post/${postId}`,
+      {
+        caption,
+      },
+      {
+        headers: {
+          "Content-Type": "application/json",
+        },
+      }
+    );
+    dispatch({
+      type: "updateCaptionSuccess",
+      payload: data.message,
+    });
+  } catch (error) {
+    dispatch({
+      type: "updateCaptionFailure",
+      payload: error.response.data.message,
+    });
+  }
+};
+export const deletePost = (id) => async (dispatch) => {
+  try {
+    dispatch({
+      type: "deletePostRequest",
+    });
+
+    const { data } = await axios.delete(`/api/post/${id}`);
+    dispatch({
+      type: "deletePostSuccess",
+      payload: data.message,
+    });
+  } catch (error) {
+    dispatch({
+      type: "deletePostFailure",
+      payload: error.response.data.message,
+    });
+  }
+};

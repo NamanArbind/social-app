@@ -293,6 +293,7 @@ exports.getMyPosts = async (req, res) => {
 
     for (let i = 0; i < user.posts.length; i++) {
       const post = await Post.findById(user.posts[i]).populate("likes comments.user owner");
+      // if(post!=undefined)
       posts.push(post);
     }
     res.status(200).json({

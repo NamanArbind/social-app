@@ -12,8 +12,8 @@ import { Link } from "react-router-dom";
 import "./Post.css";
 import { useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { addCommentOnPost, likePost } from "../../Actions/Post";
-import { getFollowingPosts, getMyPosts } from "../../Actions/User";
+import { addCommentOnPost, deletePost, likePost, updatePost } from "../../Actions/Post";
+import { getFollowingPosts, getMyPosts, loadUser } from "../../Actions/User";
 import User from "../User/User";
 import CommentCard from "../CommentCard/CommentCard";
 
@@ -26,35 +26,46 @@ const Post = ({
   ownerImage,
   ownerName,
   ownerId,
-  isDelete = false,
+  isDelete,
   isAccount,
 }) => {
   const [liked, setLiked] = useState(false);
   const [likesUser, setLikesUser] = useState(false);
   const [commentValue, setCommentValue] = useState("");
   const [commentToggle, setCommentToggle] = useState(false);
+  const [captionValue, setCaptionValue] = useState(caption);
+  const [captionToggle, setCaptionToggle] = useState(false);
   const dispatch = useDispatch();
   const { user } = useSelector((state) => state.user);
 
-  const handleLike =async () => {
+  const handleLike = async () => {
     setLiked(!liked);
-   await dispatch(likePost(postId));
+    await dispatch(likePost(postId));
     if (isAccount) {
-      dispatch(getMyPosts())
+      dispatch(getMyPosts());
     } else {
       dispatch(getFollowingPosts());
     }
   };
-  const addCommentHandler=async (e)=>
-  {
-          e.preventDefault();
+  const addCommentHandler = async (e) => {
+    e.preventDefault();
 
-          await dispatch(addCommentOnPost(postId,commentValue))
-          if (isAccount) {
-            console.log("Bring me my comments");
-          } else {
-            dispatch(getFollowingPosts());
-          }
+    await dispatch(addCommentOnPost(postId, commentValue));
+    if (isAccount) {
+      dispatch(getMyPosts());
+    } else {
+      dispatch(getFollowingPosts());
+    }
+  };
+  const updateCaptionHandler = (e) => {
+    e.preventDefault();
+    dispatch(updatePost(captionValue, postId));
+    dispatch(getMyPosts());
+  };
+  const deletePostHandler = async () => {
+    await dispatch(deletePost(postId));
+     dispatch(getMyPosts());
+     dispatch(loadUser())
   }
   useEffect(() => {
     likes.forEach((item) => {
@@ -66,7 +77,7 @@ const Post = ({
     <div className="post">
       <div className="postHeader">
         {isAccount ? (
-          <Button>
+          <Button onClick={() => setCaptionToggle(!captionToggle)}>
             <MoreVert />
           </Button>
         ) : null}
@@ -113,10 +124,10 @@ const Post = ({
         <Button onClick={handleLike}>
           {liked ? <Favorite style={{ color: "red" }} /> : <FavoriteBorder />}
         </Button>
-        <Button onClick={()=>setCommentToggle(!commentToggle)}>
+        <Button onClick={() => setCommentToggle(!commentToggle)}>
           <ChatBubbleOutline />
         </Button>
-        <Button>{isDelete ? <DeleteOutline /> : null}</Button>
+        <Button onClick={deletePostHandler}>{isDelete ? <DeleteOutline /> : null}</Button>
       </div>
       <Dialog open={likesUser} onClose={() => setLikesUser(!likesUser)}>
         <div className="DialogBox">
@@ -142,27 +153,51 @@ const Post = ({
           <form className="commentForm" onSubmit={addCommentHandler}>
             <input
               type="text"
-              placeholder="Comment Here"
+              placeholder="Enter Comment"
               value={commentValue}
               onChange={(e) => setCommentValue(e.target.value)}
               required
             />
-            <Button type="submit" variant="contained">Add</Button>
+            <Button type="submit" variant="contained">
+              Add
+            </Button>
           </form>
-          {
-            comments.length>0?comments.map((item) => (
+          {comments.length > 0 ? (
+            comments.map((item) => (
               <CommentCard
-              key={item._id}
-              userId={item.user._id}
-              name={item.user.name}
-              avatar={item.user.avatar.url}
-              comment={item.comment}
-              postId={postId}
-              commentId={item._id}
-              isAccount={isAccount}
+                key={item._id}
+                userId={item.user._id}
+                name={item.user.name}
+                avatar={item.user.avatar.url}
+                comment={item.comment}
+                postId={postId}
+                commentId={item._id}
+                isAccount={isAccount}
               />
-            )):(<Typography variant="h4">No comments yet</Typography>)
-          }
+            ))
+          ) : (
+            <Typography variant="h4">No comments yet</Typography>
+          )}
+        </div>
+      </Dialog>
+      <Dialog
+        open={captionToggle}
+        onClose={() => setCaptionToggle(!captionToggle)}
+      >
+        <div className="DialogBox">
+          <Typography variant="h4">Update Caption</Typography>
+          <form className="commentForm" onSubmit={updateCaptionHandler}>
+            <input
+              type="text"
+              placeholder="Enter Caption"
+              value={captionValue}
+              onChange={(e) => setCaptionValue(e.target.value)}
+              required
+            />
+            <Button type="submit" variant="contained">
+              Update
+            </Button>
+          </form>
         </div>
       </Dialog>
     </div>

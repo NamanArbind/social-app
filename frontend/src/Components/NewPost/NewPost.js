@@ -1,26 +1,47 @@
-import React, { useState } from "react";
-import "./NewPost.css";
 import { Button, Typography } from "@mui/material";
+import React, { useEffect, useState } from "react";
+import { useAlert } from "react-alert";
+import { useDispatch, useSelector } from "react-redux";
+import { createNewPost } from "../../Actions/Post";
+import "./NewPost.css";
+import { loadUser } from "../../Actions/User";
 
 const NewPost = () => {
   const [image, setImage] = useState(null);
   const [caption, setCaption] = useState("");
+  const { loading, error, message } = useSelector((state) => state.like);
+  const dispatch = useDispatch();
+  const alert = useAlert();
   const handleImageChange=(e)=>{
     const file=e.target.files[0]
     const reader=new FileReader();
 
+    reader.readAsDataURL(file)
     reader.onload= ()=>{
            if(reader.readyState===2)
            {
             setImage(reader.result);
            }
     }
-    reader.readAsDataURL(file)
 
   }
   const submitHandler=(e)=>{
        e.preventDefault();
+       dispatch(createNewPost(caption,image))
+       dispatch(loadUser())
+       
   }
+  useEffect(() => {
+    if (error) {
+      alert.error(error);
+      dispatch({ type: "clearErrors" });
+    }
+
+    if (message) {
+      alert.success(message);
+      dispatch({ type: "clearMessage" });
+    }
+  }, [dispatch, error, message, alert]);
   return (
     <div className="newPost">
       <form className="newPostForm" onSubmit={submitHandler}>
@@ -38,7 +59,7 @@ const NewPost = () => {
           onChange={(e) => setCaption(e.target.value)}
           style={{backgroundColor:"#c0e1ff"}}
         />
-        <Button type="submit">Post</Button>
+        <Button disabled={loading} type="submit">Post</Button>
       </form>
     </div>
   );

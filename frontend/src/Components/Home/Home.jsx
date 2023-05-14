@@ -65,6 +65,7 @@ export default function Home() {
             ownerName={post.owner.name}
             ownerId={post.owner._id}
             isAccount={false}
+            isDelete={false}
             />
            
           ))

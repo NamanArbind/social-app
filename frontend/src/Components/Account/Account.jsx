@@ -65,6 +65,7 @@ const Account = () => {
               ownerName={post.owner.name}
               ownerId={post.owner._id}
               isAccount={true}
+              isDelete={true}
             />
           ))
         ) : (
