@@ -12,10 +12,10 @@ import { Link } from "react-router-dom";
 import "./Post.css";
 import { useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { likePost } from "../../Actions/Post";
-import { getFollowingPosts } from "../../Actions/User";
-
-
+import { addCommentOnPost, likePost } from "../../Actions/Post";
+import { getFollowingPosts, getMyPosts } from "../../Actions/User";
+import User from "../User/User";
+import CommentCard from "../CommentCard/CommentCard";
 
 const Post = ({
   postId,
@@ -27,34 +27,49 @@ const Post = ({
   ownerName,
   ownerId,
   isDelete = false,
-  isAccount = false,
+  isAccount,
 }) => {
   const [liked, setLiked] = useState(false);
+  const [likesUser, setLikesUser] = useState(false);
+  const [commentValue, setCommentValue] = useState("");
+  const [commentToggle, setCommentToggle] = useState(false);
   const dispatch = useDispatch();
-  const {user}=useSelector(state=>state.user)
+  const { user } = useSelector((state) => state.user);
 
-  const handleLike = () => {
+  const handleLike =async () => {
     setLiked(!liked);
-    dispatch(likePost(postId))
-    dispatch(getFollowingPosts())
+   await dispatch(likePost(postId));
+    if (isAccount) {
+      dispatch(getMyPosts())
+    } else {
+      dispatch(getFollowingPosts());
+    }
+  };
+  const addCommentHandler=async (e)=>
+  {
+          e.preventDefault();
+
+          await dispatch(addCommentOnPost(postId,commentValue))
+          if (isAccount) {
+            console.log("Bring me my comments");
+          } else {
+            dispatch(getFollowingPosts());
+          }
   }
   useEffect(() => {
-    likes.forEach((item)=>{
-      if(item._id===user._id)
-      setLiked(true);
-    })
-
-  },[likes,user._id])
-  
+    likes.forEach((item) => {
+      if (item._id === user._id) setLiked(true);
+    });
+  }, [likes, user._id]);
 
   return (
     <div className="post">
       <div className="postHeader">
-        {
-            isAccount?<Button>
-                <MoreVert/>
-            </Button>:null
-        }
+        {isAccount ? (
+          <Button>
+            <MoreVert />
+          </Button>
+        ) : null}
       </div>
       <img src={postImage} alt="Post" />
       <div className="postDetails">
@@ -86,6 +101,10 @@ const Post = ({
           cursor: "pointer",
           margin: "1vmax 2vmax",
         }}
+        onClick={() => {
+          setLikesUser(!likesUser);
+        }}
+        disabled={likes.length === 0 ? true : false}
       >
         <Typography>{likes.length} likes</Typography>
       </button>
@@ -94,16 +113,58 @@ const Post = ({
         <Button onClick={handleLike}>
           {liked ? <Favorite style={{ color: "red" }} /> : <FavoriteBorder />}
         </Button>
-        <Button>
+        <Button onClick={()=>setCommentToggle(!commentToggle)}>
           <ChatBubbleOutline />
         </Button>
-        <Button>
-            {
-                isDelete?<DeleteOutline />:null
-            }
-          
-        </Button>
+        <Button>{isDelete ? <DeleteOutline /> : null}</Button>
       </div>
+      <Dialog open={likesUser} onClose={() => setLikesUser(!likesUser)}>
+        <div className="DialogBox">
+          <Typography variant="h4">Liked By</Typography>
+          {likes.map((like) => (
+            <User
+              key={like._id}
+              userId={like._id}
+              avatar={
+                "https://static01.nyt.com/images/2019/04/16/sports/16onsoccerweb-2/merlin_153612873_5bb119b9-8972-4087-b4fd-371cab8c5ba2-articleLarge.jpg?quality=75&auto=webp&disable=upscale"
+              }
+              name={like.name}
+            />
+          ))}
+        </div>
+      </Dialog>
+      <Dialog
+        open={commentToggle}
+        onClose={() => setCommentToggle(!commentToggle)}
+      >
+        <div className="DialogBox">
+          <Typography variant="h4">Comments</Typography>
+          <form className="commentForm" onSubmit={addCommentHandler}>
+            <input
+              type="text"
+              placeholder="Comment Here"
+              value={commentValue}
+              onChange={(e) => setCommentValue(e.target.value)}
+              required
+            />
+            <Button type="submit" variant="contained">Add</Button>
+          </form>
+          {
+            comments.length>0?comments.map((item) => (
+              <CommentCard
+              key={item._id}
+              userId={item.user._id}
+              name={item.user.name}
+              avatar={item.user.avatar.url}
+              comment={item.comment}
+              postId={postId}
+              commentId={item._id}
+              isAccount={isAccount}
+              />
+            )):(<Typography variant="h4">No comments yet</Typography>)
+          }
+        </div>
+      </Dialog>
     </div>
   );
 };

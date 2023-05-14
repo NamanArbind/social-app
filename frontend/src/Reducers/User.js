@@ -41,6 +41,19 @@ export const userReducer = createReducer(initialState, {
     state.error = action.payload;
     state.isAuthenticated = false;
   },
+  LogoutUserRequest: (state) => {
+    state.loading = true;
+  },
+  LogoutUserSuccess: (state) => {
+    state.loading = false;
+    state.user = null;
+    state.isAuthenticated = false;
+  },
+  LogoutUserFailure: (state, action) => {
+    state.loading = false;
+    state.error = action.payload;
+    state.isAuthenticated = true;
+  },
   clearErrors: (state) => {
     state.error = null;
   },
@@ -78,3 +91,21 @@ export const allUsersReducer = createReducer(initialState, {
     state.error = null;
   },
 });
+
+export const myPostsReducer=createReducer(initialState,{
+  myPostsRequest:(state)=>{
+    state.loading = true;
+  },
+  myPostsSuccess:(state,action)=>{
+     state.loading = false;
+     state.posts=action.payload
+  },
+  myPostsFailure:(state,action)=>{
+    state.loading=false;
+    state.error=action.payload;
+  },
+  clearErrors: (state) => {
+    state.error = null;
+  },
+
+})

@@ -221,7 +221,7 @@ exports.deleteComments = async (req, res) => {
 
       res.status(200).json({
         success: true,
-        message: "Comment deleted on your post",
+        message: "Comment deleted on own post",
       });
     } else {
       let commentIndex = -1;
@@ -236,7 +236,7 @@ exports.deleteComments = async (req, res) => {
 
       res.status(200).json({
         success: true,
-        message: "Comment deleted on other post",
+        message: "Comment deleted made on other's post",
       });
     }
   } catch (error) {

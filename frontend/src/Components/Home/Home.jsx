@@ -64,6 +64,7 @@ export default function Home() {
             ownerImage={post.owner.avatar.url}
             ownerName={post.owner.name}
             ownerId={post.owner._id}
+            isAccount={false}
             />
            
           ))
