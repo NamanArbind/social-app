@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import "./Account.css";
 import { useDispatch, useSelector } from "react-redux";
-import { getMyPosts, logoutUser } from "../../Actions/User";
+import { deleteMyProfile, getMyPosts, logoutUser } from "../../Actions/User";
 import Post from "../Post/Post";
 import { Avatar, Button, Typography } from "@mui/material";
 import Loader from "../Loader/Loader";
@@ -12,16 +12,24 @@ import User from "../User/User";
 
 const Account = () => {
   const dispatch = useDispatch();
-  const { message, error: likeError } = useSelector((state) => state.like);
+  const {
+    message,
+    error: likeError,
+    loading: deleteLoading,
+  } = useSelector((state) => state.like);
   const { posts, loading, error } = useSelector((state) => state.myPosts);
   const { user, loading: userLoading } = useSelector((state) => state.user);
   const [followersToggle, setFollowersToggle] = useState(false);
   const [followingToggle, setFollowingToggle] = useState(false);
 
   const alert = useAlert();
-  const logoutHandler =  () => {
+  const logoutHandler = () => {
     dispatch(logoutUser());
     alert.success("Logged out successfully");
+  };
+  const deleteProfileHandler = async () => {
+   await dispatch(deleteMyProfile());
+    dispatch(logoutUser())
   };
   useEffect(() => {
     dispatch(getMyPosts());
@@ -99,7 +107,12 @@ const Account = () => {
         </Button>
         <Link to={"/update/password"}>Change password</Link>
         <Link to={"/update/profile"}>Update profile</Link>
-        <Button variant="text" style={{ color: "red", margin: "2vmax" }}>
+        <Button
+          disabled={deleteLoading}
+          onClick={deleteProfileHandler}
+          variant="text"
+          style={{ color: "red", margin: "2vmax" }}
+        >
           Delete My Profile
         </Button>
 
@@ -114,9 +127,7 @@ const Account = () => {
                 <User
                   key={item._id}
                   userId={item._id}
-                  avatar={
-                    "https://static01.nyt.com/images/2019/04/16/sports/16onsoccerweb-2/merlin_153612873_5bb119b9-8972-4087-b4fd-371cab8c5ba2-articleLarge.jpg?quality=75&auto=webp&disable=upscale"
-                  }
+                  avatar={item.avatar.url}
                   name={item.name}
                 />
               ))
@@ -139,9 +150,7 @@ const Account = () => {
                 <User
                   key={item._id}
                   userId={item._id}
-                  avatar={
-                    "https://static01.nyt.com/images/2019/04/16/sports/16onsoccerweb-2/merlin_153612873_5bb119b9-8972-4087-b4fd-371cab8c5ba2-articleLarge.jpg?quality=75&auto=webp&disable=upscale"
-                  }
+                  avatar={item.avatar.url}
                   name={item.name}
                 />
               ))

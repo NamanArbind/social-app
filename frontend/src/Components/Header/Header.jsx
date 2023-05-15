@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, {  useState } from "react";
 import { Link } from "react-router-dom";
 import "./Header.css";
 import {
@@ -11,9 +11,18 @@ import {
   AccountCircle,
   AccountCircleOutlined,
 } from "@mui/icons-material";
+// import { useSelector } from "react-redux";
 
 export default function Header() {
   const [tab, setTab] = useState(window.location.pathname);
+  // const {message}=useSelector(state=>state.like)
+  // useEffect(() => {
+  //   if(message==="Post created")
+  //   {
+  //     setTab("/account");
+  //   }
+
+  // },[message])
   return (
     <div className="header">
       <Link

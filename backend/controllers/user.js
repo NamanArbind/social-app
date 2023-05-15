@@ -218,6 +218,7 @@ exports.deleteProfile = async (req, res) => {
     //deleting posts of deleted user
     for (let i = 0; i < posts.length; i++) {
       const post = await Post.findById(posts[i]);
+      await cloudinary.v2.uploader.destroy(post.image.public_id)
       await Post.deleteOne(post);
     }
     //removing from followers following list

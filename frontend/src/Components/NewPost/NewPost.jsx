@@ -5,6 +5,8 @@ import { useDispatch, useSelector } from "react-redux";
 import { createNewPost } from "../../Actions/Post";
 import "./NewPost.css";
 import { loadUser } from "../../Actions/User";
+import {useNavigate} from "react-router-dom"
+import Loader from "../Loader/Loader"
 
 const NewPost = () => {
   const [image, setImage] = useState(null);
@@ -12,6 +14,7 @@ const NewPost = () => {
   const { loading, error, message } = useSelector((state) => state.like);
   const dispatch = useDispatch();
   const alert = useAlert();
+  const navigate=useNavigate()
   const handleImageChange=(e)=>{
     const file=e.target.files[0]
     const reader=new FileReader();
@@ -29,6 +32,8 @@ const NewPost = () => {
        e.preventDefault();
        await dispatch(createNewPost(caption,image))
        dispatch(loadUser())
+      //  window.location.pathname="/account"
+       navigate("/account")
        
   }
   useEffect(() => {
@@ -42,7 +47,7 @@ const NewPost = () => {
       dispatch({ type: "clearMessage" });
     }
   }, [dispatch, error, message, alert]);
-  return (
+  return loading?<Loader/> :(
     <div className="newPost">
       <form className="newPostForm" onSubmit={submitHandler}>
         <Typography variant="h3">New Post</Typography>
