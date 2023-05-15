@@ -74,6 +74,7 @@ export default function Home() {
         }
       </div>
       <div className="homeright">
+        <Typography variant="h4">All users</Typography>
        {
         users&&users.length?users.map((user) => (
           <User

@@ -109,3 +109,37 @@ export const myPostsReducer=createReducer(initialState,{
   },
 
 })
+export const userPostsReducer=createReducer(initialState,{
+  userPostsRequest:(state)=>{
+    state.loading = true;
+  },
+  userPostsSuccess:(state,action)=>{
+     state.loading = false;
+     state.posts=action.payload
+  },
+  userPostsFailure:(state,action)=>{
+    state.loading=false;
+    state.error=action.payload;
+  },
+  clearErrors: (state) => {
+    state.error = null;
+  },
+
+})
+export const userProfileReducer=createReducer(initialState,{
+  userProfileRequest:(state)=>{
+    state.loading = true;
+  },
+  userProfileSuccess:(state,action)=>{
+     state.loading = false;
+     state.user=action.payload
+  },
+  userProfileFailure:(state,action)=>{
+    state.loading=false;
+    state.error=action.payload;
+  },
+  clearErrors: (state) => {
+    state.error = null;
+  },
+
+})

@@ -235,6 +235,33 @@ exports.deleteProfile = async (req, res) => {
       user.followers.splice(index, 1);
       await user.save();
     }
+    //removing comments of Deleted user
+    const allPosts=await Post.find()
+
+    for(let i=0;i<allPosts.length;i++)
+    {
+      const post=await Post.findById(allPosts[i]._id);
+      for(let j=0;j<post.comments.length;j++)
+      {
+        if(post.comments[j].id==userID)
+        post.comments.splice(j,1);
+
+      }
+      await post.save();
+    }
+     //removing likes of Deleted user
+    for(let i=0;i<allPosts.length;i++)
+    {
+      const post=await Post.findById(allPosts[i]._id);
+      for(let j=0;j<post.likes.length;j++)
+      {
+        if(post.likes[j]==userID)
+        post.likes.splice(j,1);
+
+      }
+      await post.save();
+    }
+
     res.status(200).send({
       success: true,
       message: "Profile Deleted",
@@ -267,7 +294,7 @@ exports.myProfile = async (req, res) => {
 
 exports.getUserProfile = async (req, res) => {
   try {
-    const user = await User.findById(req.params.id).populate("posts");
+    const user = await User.findById(req.params.id).populate("posts followers following");
     if (!user) {
       return res.status(404).send({
         success: false,
@@ -289,7 +316,9 @@ exports.getUserProfile = async (req, res) => {
 
 exports.getAllUsers = async (req, res) => {
   try {
-    const users = await User.find({});
+    const users = await User.find({
+      name: { $regex: req.query.name, $options: "i" },
+    });
     res.status(200).json({
       success: true,
       users,
@@ -305,6 +334,29 @@ exports.getAllUsers = async (req, res) => {
 exports.getMyPosts = async (req, res) => {
   try {
     const user = await User.findById(req.user._id);
+    const posts = [];
+
+    for (let i = 0; i < user.posts.length; i++) {
+      const post = await Post.findById(user.posts[i]).populate(
+        "likes comments.user owner"
+      );
+      // if(post!=undefined)
+      posts.push(post);
+    }
+    res.status(200).json({
+      success: true,
+      posts,
+    });
+  } catch (error) {
+    res.status(500).send({
+      success: false,
+      message: error.message,
+    });
+  }
+};
+exports.getUserPosts = async (req, res) => {
+  try {
+    const user = await User.findById(req.params.id);
     const posts = [];
 
     for (let i = 0; i < user.posts.length; i++) {
