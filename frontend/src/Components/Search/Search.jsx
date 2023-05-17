@@ -1,23 +1,17 @@
-import React, { useEffect, useState } from "react";
+import React, { useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { Button } from "@mui/material";
-import { Avatar, Typography } from "@mui/material";
-// import {Link} from "react-router-dom"
-// import "./UpdateProfile.css";
-import { getAllUsers, loadUser, registerUser } from "../../Actions/User";
-import { useAlert } from "react-alert";
-import { updateProfile } from "../../Actions/Post";
-import Loader from "../Loader/Loader";
-import { useNavigate } from "react-router-dom";
+import { Typography } from "@mui/material";
+
+import { getAllUsers } from "../../Actions/User";
+
 import "./Search.css";
 import User from "../User/User";
 
 const Search = () => {
   const [name, setName] = useState("");
   const dispatch = useDispatch();
-  const { loading, users } = useSelector(
-    (state) => state.allUsers
-  );
+  const { loading, users } = useSelector((state) => state.allUsers);
   const submitHandler = (e) => {
     e.preventDefault();
     dispatch(getAllUsers(name));
@@ -38,20 +32,21 @@ const Search = () => {
           placeholder="Enter Name"
           required
         />
-        <Button disabled={loading} type="submit">Search</Button>
+        <Button disabled={loading} type="submit">
+          Search
+        </Button>
         <div className="searchResults">
-        {users &&
-          users.map((item) => (
-            <User
-              key={item._id}
-              userId={item._id}
-              name={item.name}
-              avatar={item.avatar.url}
-            />
-          ))}
-      </div>
+          {users &&
+            users.map((item) => (
+              <User
+                key={item._id}
+                userId={item._id}
+                name={item.name}
+                avatar={item.avatar.url}
+              />
+            ))}
+        </div>
       </form>
-      
     </div>
   );
 };
